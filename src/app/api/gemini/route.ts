@@ -2,10 +2,29 @@
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
 
 export async function POST(req: Request) {
+  // Check authentication first
+  const session = await getServerSession();
+  
+  if (!session) {
+    return NextResponse.json(
+      { error: "Authentication required" },
+      { status: 401 }
+    );
+  }
+
   // Get the prompt from the request body
   const { prompt } = await req.json();
+
+  // Validate input
+  if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
+    return NextResponse.json(
+      { error: "Valid prompt is required" },
+      { status: 400 }
+    );
+  }
 
   // Ensure the API key is set
   const apiKey = process.env.GOOGLE_API_KEY;
@@ -36,4 +55,4 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}   
+}

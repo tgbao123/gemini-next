@@ -1,12 +1,23 @@
 // File: app/page.tsx
 'use client'; // This directive is necessary for using hooks
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import LoginButton from '../components/LoginButton';
 
 export default function HomePage() {
   const [prompt, setPrompt] = useState('');
   const [result, setResult] = useState('');
   const [loading, setLoading] = useState(false);
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login');
+    }
+  }, [status, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,6 +50,7 @@ export default function HomePage() {
 
   return (
     <div style={{ maxWidth: '600px', margin: '40px auto', fontFamily: 'sans-serif' }}>
+      <LoginButton />
       <h1>Ask Gemini AI 🚀</h1>
       <form onSubmit={handleSubmit}>
         <textarea
